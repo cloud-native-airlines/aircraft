@@ -13,9 +13,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/cloud-native-airlines/flight/internal/adsb"
 	"github.com/cloud-native-airlines/flight/internal/config"
 	"github.com/cloud-native-airlines/flight/internal/engine"
 	"github.com/cloud-native-airlines/flight/internal/httpapi"
+	"github.com/cloud-native-airlines/flight/internal/ticks"
 )
 
 func main() {
@@ -47,6 +49,20 @@ func main() {
 		"departure", cfg.Plan.Departure.Format(time.RFC3339),
 		"arrival", cfg.Plan.Arrival.Format(time.RFC3339),
 	)
+
+	// Optional: subscribe to Simulator ticks on NATS and report to ADS-B.
+	if cfg.NATSURL != "" {
+		var reporter ticks.Reporter
+		if cfg.ADSBURL != "" {
+			reporter = adsb.New(cfg.ADSBURL, cfg.ReportTimeout, cfg.ReportRetries)
+		}
+		sub, err := ticks.Connect(cfg.NATSURL, cfg.TickSubject, eng, reporter, log, onLanding)
+		if err != nil {
+			log.Error("tick subscriber error", "error", err)
+			os.Exit(1)
+		}
+		defer sub.Close()
+	}
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {

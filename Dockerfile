@@ -1,8 +1,8 @@
 FROM golang:1.27 AS build
 WORKDIR /src
 
-# Module files first for layer caching. (No third-party deps yet, so no go.sum.)
-COPY go.mod ./
+# Module files first for layer caching.
+COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .

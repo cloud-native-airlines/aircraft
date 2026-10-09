@@ -17,6 +17,13 @@ type Config struct {
 	Plan       flight.Plan
 	RunID      string // optional; empty means bind to the first tick
 	ListenAddr string
+
+	// Integration (all optional; empty disables that hop, keeping Phase 1 local).
+	NATSURL       string        // subscribe to Simulator ticks when set
+	TickSubject   string        // NATS subject for ticks
+	ADSBURL       string        // post reports to ADS-B when set
+	ReportTimeout time.Duration // per-attempt deadline for ADS-B delivery
+	ReportRetries int           // retries after the first attempt
 }
 
 // airport mirrors the origin/destination shape of the shared scenario files.
@@ -92,9 +99,14 @@ func Load() (Config, error) {
 	}
 
 	return Config{
-		Plan:       plan,
-		RunID:      os.Getenv("FLIGHT_RUN_ID"),
-		ListenAddr: envString("LISTEN_ADDR", "0.0.0.0:8080"),
+		Plan:          plan,
+		RunID:         os.Getenv("FLIGHT_RUN_ID"),
+		ListenAddr:    envString("LISTEN_ADDR", "0.0.0.0:8080"),
+		NATSURL:       os.Getenv("NATS_URL"),
+		TickSubject:   envString("SIM_TICK_SUBJECT", "cna.sim.tick"),
+		ADSBURL:       os.Getenv("ADSB_URL"),
+		ReportTimeout: 5 * time.Second,
+		ReportRetries: 3,
 	}, nil
 }
 
