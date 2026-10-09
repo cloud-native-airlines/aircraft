@@ -1,0 +1,19 @@
+{
+  "flight_id": "CNA100",
+  "aircraft_id": "N100CA",
+  "origin": {
+    "iata": "MSP",
+    "latitude_deg": 44.8848,
+    "longitude_deg": -93.2223
+  },
+  "destination": {
+    "iata": "ORD",
+    "latitude_deg": 41.9742,
+    "longitude_deg": -87.9073
+  },
+  "departure_time": "2026-10-06T14:00:00Z",
+  "arrival_time": "2026-10-06T15:00:00Z",
+  "cruise_altitude_m": 10668,
+  "climb_fraction": 0.25,
+  "descent_fraction": 0.25
+}
